@@ -2,6 +2,8 @@
 ob_start(); // Captura cualquier output extra antes del JSON
 
 require_once '../config.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     ob_end_clean();
