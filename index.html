@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sistema Contable ERP — Dulces y Delicias del Valle, S.A.</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+<link href="https://cdn.datatables.net/1.13.8/css/dataTables.bootstrap5.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css">
+<script>
+// Verificar sesión al cargar
+(function() {
+  const sesion = sessionStorage.getItem('erp_usuario');
+  if (!sesion) window.location.href = 'login.html';
+})();
+</script>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════ SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="sidebar-logo">🍬</div>
+    <div class="sidebar-brand-title">Dulces y Delicias<br>del Valle, S.A.</div>
+    <div class="sidebar-brand-sub">Sistema Contable ERP · 2026</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">General</div>
+    <button class="sidebar-link active" onclick="showPage('dashboard',this)">
+      <i class="bi bi-grid-1x2-fill"></i> Dashboard
+    </button>
+    <div class="nav-section-label">Libros Contables</div>
+    <button class="sidebar-link" onclick="showPage('nuevapartida',this)">
+      <i class="bi bi-journal-plus"></i> Nueva Partida
+    </button>
+    <button class="sidebar-link" onclick="showPage('diario',this)">
+      <i class="bi bi-journal-text"></i> Libro Diario
+    </button>
+    <button class="sidebar-link" onclick="showPage('mayor',this)">
+      <i class="bi bi-layout-split"></i> Libro Mayor
+    </button>
+    <button class="sidebar-link" onclick="showPage('bsaldos',this)">
+      <i class="bi bi-table"></i> Balance de Saldos
+    </button>
+    <button class="sidebar-link" onclick="showPage('ajustes',this)">
+      <i class="bi bi-tools"></i> Ajustes
+    </button>
+    <button class="sidebar-link" onclick="showPage('bajustado',this)">
+      <i class="bi bi-clipboard-check"></i> Bal. Ajustado
+    </button>
+    <button class="sidebar-link" onclick="showPage('nueva-partida',this)">
+      <i class="bi bi-plus-circle-fill"></i> Nueva Partida
+    </button>
+
+    <div class="nav-section-label">Estados Financieros</div>
+    <button class="sidebar-link" onclick="showPage('resultados',this)">
+      <i class="bi bi-bar-chart-line-fill"></i> Estado de Resultados
+    </button>
+    <button class="sidebar-link" onclick="showPage('balance',this)">
+      <i class="bi bi-building"></i> Balance General
+    </button>
+    <div class="nav-section-label">Recursos</div>
+    <button class="sidebar-link" onclick="showPage('nomina',this)">
+      <i class="bi bi-people-fill"></i> Nómina
+    </button>
+    <button class="sidebar-link" onclick="showPage('productos',this)">
+      <i class="bi bi-bag-fill"></i> Productos
+    </button>
+    <button class="sidebar-link" onclick="showPage('iva',this)">
+      <i class="bi bi-receipt"></i> IVA / ISR
+    </button>
+
+    <div class="nav-section-label">Administración</div>
+    <button class="sidebar-link" onclick="showPage('usuarios',this)">
+      <i class="bi bi-person-gear"></i> Usuarios
+    </button>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <div class="sidebar-avatar" id="usr-avatar">AR</div>
+      <div style="flex:1;min-width:0">
+        <div class="sidebar-user-name" id="usr-nombre">Cargando...</div>
+        <div class="sidebar-user-role" id="usr-rol">—</div>
+      </div>
+      <button onclick="cerrarSesion()" title="Cerrar sesión"
+        style="background:none;border:none;color:rgba(255,255,255,0.45);font-size:18px;cursor:pointer;padding:4px"
+        onmouseover="this.style.color='#e87c34'" onmouseout="this.style.color='rgba(255,255,255,0.45)'">
+        <i class="bi bi-box-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════════════ TOPBAR -->
+<div class="topbar">
+  <div class="d-flex align-items-center gap-3">
+    <button class="btn btn-sm d-md-none" onclick="toggleSidebar()"><i class="bi bi-list fs-5"></i></button>
+    <span class="topbar-title" id="topbarTitle">Dashboard</span>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-badge"><span class="dot"></span> Sistema en línea</div>
+    <!-- Selector de período -->
+    <div class="d-flex align-items-center gap-2">
+      <select id="sel-mes" class="form-select form-select-sm" style="width:130px;border-radius:20px;font-size:12px;font-weight:600;color:var(--primary);border:none;background:rgba(26,60,94,0.07)" onchange="cambiarPeriodo()">
+        <option value="1">Enero</option>
+        <option value="2">Febrero</option>
+        <option value="3">Marzo</option>
+        <option value="4">Abril</option>
+        <option value="5">Mayo</option>
+        <option value="6">Junio</option>
+        <option value="7">Julio</option>
+        <option value="8">Agosto</option>
+        <option value="9">Septiembre</option>
+        <option value="10">Octubre</option>
+        <option value="11">Noviembre</option>
+        <option value="12">Diciembre</option>
+      </select>
+      <select id="sel-anio" class="form-select form-select-sm" style="width:90px;border-radius:20px;font-size:12px;font-weight:600;color:var(--primary);border:none;background:rgba(26,60,94,0.07)" onchange="cambiarPeriodo()">
+        <option value="2026">2026</option>
+        <option value="2027">2027</option>
+        <option value="2028">2028</option>
+        <option value="2029">2029</option>
+        <option value="2030">2030</option>
+      </select>
+    </div>
+    <button class="btn btn-sm" onclick="toggleNocturno()" title="Modo nocturno" id="btn-nocturno">
+      <i class="bi bi-moon fs-5" style="color:var(--primary)"></i>
+    </button>
+    <button class="btn btn-sm" onclick="descargarPDF()" title="Descargar PDF">
+      <i class="bi bi-file-earmark-pdf fs-5" style="color:var(--danger)"></i>
+    </button>
+    <button class="btn btn-sm" onclick="printPage()" title="Imprimir">
+      <i class="bi bi-printer fs-5" style="color:var(--primary)"></i>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ MAIN -->
+<div class="main-wrap">
+<div class="main-content">
+
+<!-- ════════════════════════════ DASHBOARD -->
+<div class="page active" id="page-dashboard">
+  <div class="page-header">
+    <h2>Panel General</h2>
+    <p>Resumen ejecutivo del período contable — Dulces y Delicias del Valle, S.A. · NIT: 98765432-1 · <span class="periodo-label fw-bold" style="color:var(--accent)">Enero 2026</span></p>
+  </div>
+
+  <!-- STAT CARDS — valores cargados desde MySQL por scrip.js -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="stat-card" style="--card-accent:var(--info)">
+        <div class="stat-icon" style="--icon-bg:rgba(41,128,185,0.1);--icon-color:var(--info)"><i class="bi bi-wallet2"></i></div>
+        <div class="stat-label">Capital Inicial</div>
+        <div class="stat-value" id="stat-capital" style="font-size:20px">Cargando...</div>
+        <div class="stat-sub">Apertura ene-26</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="stat-card" style="--card-accent:var(--success)">
+        <div class="stat-icon" style="--icon-bg:rgba(45,158,107,0.1);--icon-color:var(--success)"><i class="bi bi-graph-up-arrow"></i></div>
+        <div class="stat-label">Ventas</div>
+        <div class="stat-value" id="stat-ventas" style="font-size:20px">Cargando...</div>
+        <div class="stat-sub">Contado + Crédito</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="stat-card" style="--card-accent:var(--accent)">
+        <div class="stat-icon"><i class="bi bi-box-seam"></i></div>
+        <div class="stat-label">Costo Ventas</div>
+        <div class="stat-value" id="stat-costo" style="font-size:20px">Cargando...</div>
+        <div class="stat-sub">Mercadería vendida</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="stat-card" style="--card-accent:var(--warning)">
+        <div class="stat-icon" style="--icon-bg:rgba(212,172,13,0.1);--icon-color:var(--warning)"><i class="bi bi-cash-stack"></i></div>
+        <div class="stat-label">Utilidad Bruta</div>
+        <div class="stat-value" id="stat-utilidad" style="font-size:20px">Cargando...</div>
+        <div class="stat-sub">Ventas − Costo</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="stat-card" style="--card-accent:var(--danger)">
+        <div class="stat-icon" style="--icon-bg:rgba(192,57,43,0.1);--icon-color:var(--danger)"><i class="bi bi-receipt-cutoff"></i></div>
+        <div class="stat-label">Gastos Totales</div>
+        <div class="stat-value" id="stat-gastos" style="font-size:20px">Cargando...</div>
+        <div class="stat-sub">Operación + Depreciación</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-4 col-lg-2">
+      <div class="stat-card" style="--card-accent:#8e44ad">
+        <div class="stat-icon" style="--icon-bg:rgba(142,68,173,0.1);--icon-color:#8e44ad"><i class="bi bi-people"></i></div>
+        <div class="stat-label">Empleados</div>
+        <div class="stat-value" id="stat-empleados" style="font-size:20px">Cargando...</div>
+        <div class="stat-sub" id="stat-planilla">Planilla mensual</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-7">
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title"><i class="bi bi-bar-chart-fill"></i> Ingresos vs. Gastos</div>
+          <span class="tag tag-accent">Enero 2026</span>
+        </div>
+        <div class="section-card-body">
+          <div class="chart-wrap" style="height:240px"><canvas id="chartIngGas"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5">
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title"><i class="bi bi-pie-chart-fill"></i> Composición de Gastos</div>
+        </div>
+        <div class="section-card-body">
+          <div class="chart-wrap" style="height:240px"><canvas id="chartGastos"></canvas></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFO ROW -->
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title"><i class="bi bi-building"></i> Datos de la Empresa</div>
+        </div>
+        <div class="section-card-body p-0">
+          <table class="table table-borderless mb-0" style="font-size:13.5px">
+            <tbody>
+              <tr><td class="text-muted fw-600" style="width:45%">Razón Social</td><td class="fw-600">Dulces y Delicias del Valle, S.A.</td></tr>
+              <tr><td class="text-muted">Fundador / Gerente</td><td class="fw-600">Angelo Ramírez</td></tr>
+              <tr><td class="text-muted">Constitución</td><td>10 de enero de 2026</td></tr>
+              <tr><td class="text-muted">NIT</td><td class="amount">98765432-1</td></tr>
+              <tr><td class="text-muted">Actividad</td><td>Bebidas, golosinas y snacks</td></tr>
+              <tr><td class="text-muted">Régimen IVA</td><td><span class="tag tag-accent">Pequeño Contribuyente 5%</span></td></tr>
+              <tr><td class="text-muted">Régimen ISR</td><td><span class="tag tag-info">Opcional Simplificado</span></td></tr>
+              <tr><td class="text-muted">Dirección</td><td>12 Av. 5-67, Zona 11, Guatemala</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title"><i class="bi bi-list-check"></i> Últimas Partidas</div>
+          <button class="btn btn-sm btn-primary" onclick="showPage('diario', document.querySelector('[onclick*=diario]'))">
+            <i class="bi bi-journal-text"></i> Ver todas
+          </button>
+        </div>
+        <div class="section-card-body p-0">
+          <table class="table table-hover mb-0" style="font-size:13px">
+            <thead><tr><th>#</th><th>Concepto</th><th class="text-end">Débito</th><th class="text-end">Crédito</th></tr></thead>
+            <!-- Llenado dinámicamente por cargarDashboard() en scrip.js -->
+            <tbody id="dashboard-partidas">
+              <tr><td colspan="4" class="text-center py-3 text-muted">
+                <div class="spinner-border spinner-border-sm me-2"></div>Cargando partidas...
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ NUEVA PARTIDA -->
+<div class="page" id="page-nuevapartida">
+  <div class="page-header">
+    <h2>Nueva Partida Contable</h2>
+    <p>Registra una partida de diario — los cambios se reflejan en el Libro Diario, Mayor y Balance automáticamente.</p>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- ── Columna izquierda: formulario ── -->
+    <div class="col-lg-8">
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title"><i class="bi bi-journal-plus"></i> Datos de la Partida</div>
+          <button class="btn btn-sm btn-outline-secondary" onclick="limpiarFormPartida()">
+            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
+          </button>
+        </div>
+        <div class="section-card-body">
+
+          <!-- Fila fecha + concepto -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-3">
+              <label class="form-label fw-bold">Fecha <span class="text-danger">*</span></label>
+              <input type="date" id="np-fecha" class="form-control"
+                value="">
+            </div>
+            <div class="col-md-9">
+              <label class="form-label fw-bold">Concepto / Descripción <span class="text-danger">*</span></label>
+              <input type="text" id="np-concepto" class="form-control"
+                placeholder="Ej: Venta de mercadería al contado, Pago de planilla, Compra a crédito...">
+            </div>
+          </div>
+
+          <!-- Tabla de líneas -->
+          <label class="form-label fw-bold mb-2">
+            <i class="bi bi-table me-1" style="color:var(--accent)"></i>
+            Líneas Contables <span class="text-danger">*</span>
+          </label>
+
+          <div class="table-responsive mb-3">
+            <table class="table table-bordered mb-0" id="np-tabla">
+              <thead style="background:#f5f7fa">
+                <tr>
+                  <th style="width:44%">Cuenta Contable</th>
+                  <th style="width:24%" class="text-end">Debe (Q)</th>
+                  <th style="width:24%" class="text-end">Haber (Q)</th>
+                  <th style="width:8%" class="text-center">—</th>
+                </tr>
+              </thead>
+              <tbody id="np-lineas">
+                <!-- filas generadas por JS -->
+              </tbody>
+              <tfoot>
+                <tr style="background:#fafbfc;font-weight:700">
+                  <td>TOTALES</td>
+                  <td class="text-end amount-debe" id="np-sum-debe">Q 0.00</td>
+                  <td class="text-end amount-haber" id="np-sum-haber">Q 0.00</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <!-- Botón agregar línea -->
+          <button class="btn btn-outline-primary btn-sm mb-4" onclick="npAgregarLinea()">
+            <i class="bi bi-plus-circle me-1"></i> Agregar línea
+          </button>
+
+          <!-- Alerta de cuadre -->
+          <div id="np-alerta" class="alert mb-4 d-flex align-items-center gap-2" style="display:none!important">
+            <i id="np-alerta-icon" class="fs-5"></i>
+            <span id="np-alerta-msg"></span>
+          </div>
+
+          <!-- Botón guardar -->
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary px-4" onclick="npGuardar()" id="np-btn-guardar">
+              <i class="bi bi-save me-2"></i> Guardar Partida
+            </button>
+            <button class="btn btn-outline-secondary" onclick="showPage('diario', document.querySelector('[onclick*=diario]'))">
+              <i class="bi bi-journal-text me-1"></i> Ver Libro Diario
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Columna derecha: ayuda y últimas partidas ── -->
+    <div class="col-lg-4">
+
+      <!-- Panel de cuadre en vivo -->
+      <div class="section-card mb-3" id="np-panel-cuadre">
+        <div class="section-card-header">
+          <div class="section-card-title"><i class="bi bi-calculator"></i> Verificación de Cuadre</div>
+        </div>
+        <div class="section-card-body">
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Total Debe</span>
+            <span class="fw-bold amount-debe" id="np-panel-debe">Q 0.00</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Total Haber</span>
+            <span class="fw-bold amount-haber" id="np-panel-haber">Q 0.00</span>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between">
+            <span class="text-muted">Diferencia</span>
+            <span class="fw-bold" id="np-panel-diff">Q 0.00</span>
+          </div>
+          <div class="mt-3 text-center" id="np-panel-estado">
+            <span class="tag tag-warning" style="font-size:13px;padding:6px 14px">
+              <i class="bi bi-hourglass-split me-1"></i> Esperando datos
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cuentas disponibles (referencia rápida) -->
+      <div class="section-card mb-3">
+        <div class="section-card-header">
+          <div class="section-card-title"><i class="bi bi-list-ul"></i> Cuentas Disponibles</div>
+          <button class="btn btn-sm btn-primary" onclick="abrirModalNuevaCuenta()">
+            <i class="bi bi-plus"></i> Nueva
+          </button>
+        </div>
+        <div class="section-card-body p-0">
+          <div style="max-height:220px;overflow-y:auto">
+            <table class="table table-sm mb-0" style="font-size:12px" id="np-ref-cuentas">
+              <thead style="position:sticky;top:0;background:#f5f7fa">
+                <tr><th>Código</th><th>Cuenta</th><th>Tipo</th></tr>
+              </thead>
+              <tbody id="np-cuentas-lista">
+                <tr><td colspan="3" class="text-center text-muted py-2">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Últimas 5 partidas registradas -->
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title"><i class="bi bi-clock-history"></i> Últimas Partidas</div>
+        </div>
+        <div class="section-card-body p-0">
+          <div id="np-ultimas" style="font-size:12.5px">
+            <div class="text-center text-muted py-3">Cargando...</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ LIBRO DIARIO -->
+<div class="page" id="page-diario">
+  <div class="page-header">
+    <h2>Libro Diario</h2>
+    <p>Registro cronológico de operaciones · Dulces y Delicias del Valle, S.A. · Enero 2026</p>
+  </div>
+  <!-- Llenado dinámicamente por cargarLibroDiario() -->
+  <div id="partidas-container">
+    <div class="text-center py-5 text-muted">
+      <div class="spinner-border mb-2"></div><br>Cargando partidas...
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ LIBRO MAYOR -->
+<div class="page" id="page-mayor">
+  <div class="page-header">
+    <h2>Libro Mayor</h2>
+    <p>Cuentas en T — Resumen de movimientos por cuenta · Enero 2026</p>
+  </div>
+  <!-- Llenado dinámicamente por cargarLibroMayor() -->
+  <div class="mayor-grid" id="mayorGrid">
+    <div class="text-center py-5 text-muted">
+      <div class="spinner-border mb-2"></div><br>Cargando cuentas...
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ BALANCE DE SALDOS -->
+<div class="page" id="page-bsaldos">
+  <div class="page-header">
+    <h2>Balance de Saldos</h2>
+    <p>Comprobación de igualdad Débitos = Créditos · Enero 2026</p>
+  </div>
+  <div class="section-card">
+    <div class="section-card-header">
+      <div class="section-card-title"><i class="bi bi-table"></i> Balance de Saldos Completo</div>
+      <button class="btn btn-sm btn-outline-secondary" onclick="exportTableCSV('tbl-bsaldos','balance_saldos')">
+        <i class="bi bi-download"></i> Exportar
+      </button>
+    </div>
+    <div class="section-card-body p-0">
+      <table id="tbl-bsaldos" class="table table-hover w-100">
+        <thead>
+          <tr>
+            <th>Código</th><th>Cuenta</th><th>Naturaleza</th>
+            <th class="text-end">Total Débitos</th><th class="text-end">Total Créditos</th>
+            <th class="text-end">Saldo Deudor</th><th class="text-end">Saldo Acreedor</th>
+          </tr>
+        </thead>
+        <tbody id="bsaldos-body">
+          <tr><td colspan="7" class="text-center py-3 text-muted">
+            <div class="spinner-border spinner-border-sm me-2"></div>Cargando...
+          </td></tr>
+        </tbody>
+        <tfoot><tr id="bsaldos-foot"></tr></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ AJUSTES -->
+<div class="page" id="page-ajustes">
+  <div class="page-header">
+    <h2>Ajustes Contables</h2>
+    <p>Partidas de ajuste al cierre del período · 31 Enero 2026</p>
+  </div>
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <div class="stat-card" style="--card-accent:var(--warning)">
+        <div class="stat-icon" style="--icon-bg:rgba(212,172,13,0.1);--icon-color:var(--warning)"><i class="bi bi-person-badge"></i></div>
+        <div class="stat-label">Ajuste A — Prestaciones</div>
+        <div class="stat-value" style="font-size:20px">Q 4,875.00</div>
+        <div class="stat-sub">Bono14 + Aguinaldo + Vacaciones</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card" style="--card-accent:var(--info)">
+        <div class="stat-icon" style="--icon-bg:rgba(41,128,185,0.1);--icon-color:var(--info)"><i class="bi bi-car-front"></i></div>
+        <div class="stat-label">Ajuste B — Depreciaciones</div>
+        <div class="stat-value" style="font-size:20px">Q 2,230.56</div>
+        <div class="stat-sub">4 activos fijos — línea recta</div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card" style="--card-accent:var(--accent)">
+        <div class="stat-icon"><i class="bi bi-receipt"></i></div>
+        <div class="stat-label">Ajuste C — IVA</div>
+        <div class="stat-value" style="font-size:20px">Q 2,100.00</div>
+        <div class="stat-sub">5% s/ventas Q42,000 — Dto.27-92</div>
+      </div>
+    </div>
+  </div>
+  <div class="section-card mb-3">
+    <div class="section-card-header">
+      <div class="section-card-title"><i class="bi bi-calculator"></i> Detalle de Depreciaciones</div>
+    </div>
+    <div class="section-card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead><tr><th>Activo Fijo</th><th class="text-end">Valor Adquisición</th><th class="text-center">Vida Útil</th><th class="text-center">% Anual</th><th class="text-end">Dep. Anual</th><th class="text-end">Dep. Mensual</th><th>Base Legal</th></tr></thead>
+        <tbody>
+          <tr><td>Vehículo de Reparto</td><td class="text-end amount">Q 85,000.00</td><td class="text-center">5 años</td><td class="text-center dep-pct">20%</td><td class="text-end amount-debe">Q 17,000.00</td><td class="text-end amount-pos fw-bold">Q 1,416.67</td><td><span class="tag tag-info">Art. 26</span></td></tr>
+          <tr><td>Mobiliario y Equipo</td><td class="text-end amount">Q 18,000.00</td><td class="text-center">5 años</td><td class="text-center dep-pct">20%</td><td class="text-end amount-debe">Q 3,600.00</td><td class="text-end amount-pos fw-bold">Q 300.00</td><td><span class="tag tag-info">Art. 27</span></td></tr>
+          <tr><td>Equipo de Cómputo</td><td class="text-end amount">Q 12,500.00</td><td class="text-center">3 años</td><td class="text-center dep-pct">33.33%</td><td class="text-end amount-debe">Q 4,166.67</td><td class="text-end amount-pos fw-bold">Q 347.22</td><td><span class="tag tag-info">Art. 28</span></td></tr>
+          <tr><td>Herramientas y Eq. Bodega</td><td class="text-end amount">Q 8,000.00</td><td class="text-center">4 años</td><td class="text-center dep-pct">25%</td><td class="text-end amount-debe">Q 2,000.00</td><td class="text-end amount-pos fw-bold">Q 166.67</td><td><span class="tag tag-info">Art. 27</span></td></tr>
+          <tr class="table-warning fw-bold"><td>TOTAL</td><td class="text-end">Q 123,500.00</td><td></td><td></td><td class="text-end">Q 26,766.67</td><td class="text-end amount-pos">Q 2,230.56</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-card-header">
+      <div class="section-card-title"><i class="bi bi-bar-chart"></i> Depreciación Mensual por Activo</div>
+    </div>
+    <div class="section-card-body"><div style="height:220px"><canvas id="chartDep"></canvas></div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ BALANCE AJUSTADO -->
+<div class="page" id="page-bajustado">
+  <div class="page-header">
+    <h2>Balance de Saldos Ajustados</h2>
+    <p>Saldos finales después de ajustes · 31 Enero 2026</p>
+  </div>
+  <div class="section-card">
+    <div class="section-card-header">
+      <div class="section-card-title"><i class="bi bi-clipboard-check"></i> Saldos Ajustados por Cuenta</div>
+      <button class="btn btn-sm btn-outline-secondary" onclick="exportTableCSV('tbl-bajustado','balance_ajustado')">
+        <i class="bi bi-download"></i> Exportar
+      </button>
+    </div>
+    <div class="section-card-body p-0">
+      <table id="tbl-bajustado" class="table table-hover w-100">
+        <thead><tr><th>Código</th><th>Cuenta</th><th>Tipo</th><th class="text-end">Saldo Antes</th><th class="text-end">Ajuste Debe</th><th class="text-end">Ajuste Haber</th><th class="text-end">Saldo Final</th><th>Clasificación</th></tr></thead>
+        <tbody id="bajustado-body">
+          <tr><td colspan="8" class="text-center py-3 text-muted">
+            <div class="spinner-border spinner-border-sm me-2"></div>Cargando...
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ ESTADO DE RESULTADOS -->
+<div class="page" id="page-resultados">
+  <div class="page-header">
+    <h2>Estado de Resultados</h2>
+    <p>Dulces y Delicias del Valle, S.A. · Del 01 al 31 de Enero de 2026</p>
+  </div>
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title"><i class="bi bi-file-earmark-bar-graph"></i> Estado de Resultados</div>
+          <span class="tag tag-accent">Enero 2026</span>
+        </div>
+        <div class="ef-row section-header">Ingresos por Ventas</div>
+        <div class="ef-row indent"><span>Ventas al Contado</span><span class="ef-amount amount-pos">Q 25,000.00</span></div>
+        <div class="ef-row indent"><span>Ventas al Crédito</span><span class="ef-amount amount-pos">Q 17,000.00</span></div>
+        <div class="ef-row subtotal"><span>Total Ingresos</span><span class="ef-amount amount-pos">Q 42,000.00</span></div>
+        <div class="ef-row section-header">Costo de Ventas</div>
+        <div class="ef-row indent"><span>Costo de Mercadería Vendida</span><span class="ef-amount amount-neg">(Q 28,500.00)</span></div>
+        <div class="ef-row subtotal"><span>Utilidad Bruta</span><span class="ef-amount" style="color:var(--warning)">Q 13,500.00</span></div>
+        <div class="ef-row section-header">Gastos de Operación</div>
+        <div class="ef-row indent"><span>Sueldos y Salarios</span><span class="ef-amount amount-neg">(Q 23,400.00)</span></div>
+        <div class="ef-row indent"><span>Cuota Patronal IGSS (12.67%)</span><span class="ef-amount amount-neg">(Q 2,964.78)</span></div>
+        <div class="ef-row indent"><span>IRTRA e INTECAP (1% c/u)</span><span class="ef-amount amount-neg">(Q 468.00)</span></div>
+        <div class="ef-row indent"><span>Provisión Bono 14</span><span class="ef-amount amount-neg">(Q 1,950.00)</span></div>
+        <div class="ef-row indent"><span>Provisión Aguinaldo</span><span class="ef-amount amount-neg">(Q 1,950.00)</span></div>
+        <div class="ef-row indent"><span>Provisión Vacaciones</span><span class="ef-amount amount-neg">(Q 975.00)</span></div>
+        <div class="ef-row indent"><span>Dep. Vehículo (20% anual)</span><span class="ef-amount amount-neg">(Q 1,416.67)</span></div>
+        <div class="ef-row indent"><span>Dep. Mobiliario (20% anual)</span><span class="ef-amount amount-neg">(Q 300.00)</span></div>
+        <div class="ef-row indent"><span>Dep. Equipo Cómputo (33.33%)</span><span class="ef-amount amount-neg">(Q 347.22)</span></div>
+        <div class="ef-row indent"><span>Dep. Herramientas (25%)</span><span class="ef-amount amount-neg">(Q 166.67)</span></div>
+        <div class="ef-row subtotal"><span>Total Gastos Operación</span><span class="ef-amount amount-neg">(Q 33,938.34)</span></div>
+        <div class="ef-row section-header">Impuestos</div>
+        <div class="ef-row indent"><span>IVA Pequeño Contribuyente 5%</span><span class="ef-amount amount-neg">(Q 2,100.00)</span></div>
+        <div class="ef-row total-final"><span>PÉRDIDA NETA DEL PERÍODO</span><span>(Q 22,538.34)</span></div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="section-card mb-3">
+        <div class="section-card-header"><div class="section-card-title"><i class="bi bi-pie-chart"></i> Distribución de Egresos</div></div>
+        <div class="section-card-body"><div style="height:220px"><canvas id="chartResultados"></canvas></div></div>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header"><div class="section-card-title"><i class="bi bi-info-circle"></i> Análisis del Resultado</div></div>
+        <div class="section-card-body">
+          <div class="alert alert-warning d-flex gap-2 mb-2" style="font-size:13px">
+            <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+            <div>La pérdida del primer mes es <strong>normal en empresas nuevas</strong>. Los gastos fijos superan las ventas iniciales. Se espera equilibrio a partir del 3er mes.</div>
+          </div>
+          <table class="table table-sm mb-0" style="font-size:13px">
+            <tbody>
+              <tr><td class="text-muted">Margen Bruto</td><td class="text-end amount-pos">32.14%</td></tr>
+              <tr><td class="text-muted">Ratio Gastos/Ventas</td><td class="text-end amount-neg">80.80%</td></tr>
+              <tr><td class="text-muted">Ventas necesarias para equilibrio</td><td class="text-end amount">Q 56,438.34</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ BALANCE GENERAL -->
+<div class="page" id="page-balance">
+  <div class="page-header">
+    <h2>Balance General</h2>
+    <p>Dulces y Delicias del Valle, S.A. · Al 31 de Enero de 2026</p>
+  </div>
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="section-card">
+        <div class="section-card-header"><div class="section-card-title"><i class="bi bi-bank"></i> ACTIVOS</div></div>
+        <div class="ef-row section-header">Activo Corriente</div>
+        <div class="ef-row indent"><span>Caja</span><span class="ef-amount amount-pos">Q 35,629.62</span></div>
+        <div class="ef-row indent"><span>Bancos</span><span class="ef-amount amount-pos">Q 47,000.00</span></div>
+        <div class="ef-row indent"><span>Cuentas por Cobrar</span><span class="ef-amount">Q 0.00</span></div>
+        <div class="ef-row indent"><span>Mercaderías</span><span class="ef-amount amount-pos">Q 21,500.00</span></div>
+        <div class="ef-row subtotal"><span>Total Activo Corriente</span><span class="ef-amount" style="color:var(--primary)">Q 104,129.62</span></div>
+        <div class="ef-row section-header">Activo No Corriente</div>
+        <div class="ef-row indent"><span>Vehículo de Reparto</span><span class="ef-amount">Q 85,000.00</span></div>
+        <div class="ef-row indent" style="color:var(--danger);font-size:12px"><span>(−) Dep. Acum. Vehículo</span><span>(Q 1,416.67)</span></div>
+        <div class="ef-row indent"><span>Mobiliario y Equipo</span><span class="ef-amount">Q 18,000.00</span></div>
+        <div class="ef-row indent" style="color:var(--danger);font-size:12px"><span>(−) Dep. Acum. Mobiliario</span><span>(Q 300.00)</span></div>
+        <div class="ef-row indent"><span>Equipo de Cómputo</span><span class="ef-amount">Q 12,500.00</span></div>
+        <div class="ef-row indent" style="color:var(--danger);font-size:12px"><span>(−) Dep. Acum. Eq. Cómputo</span><span>(Q 347.22)</span></div>
+        <div class="ef-row indent"><span>Herramientas y Eq. Bodega</span><span class="ef-amount">Q 8,000.00</span></div>
+        <div class="ef-row indent" style="color:var(--danger);font-size:12px"><span>(−) Dep. Acum. Herramientas</span><span>(Q 166.67)</span></div>
+        <div class="ef-row subtotal"><span>Total Activo No Corriente</span><span class="ef-amount" style="color:var(--primary)">Q 121,269.44</span></div>
+        <div class="ef-row total-final"><span>TOTAL ACTIVO</span><span>Q 225,399.06</span></div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="section-card mb-3">
+        <div class="section-card-header"><div class="section-card-title"><i class="bi bi-credit-card"></i> PASIVO Y PATRIMONIO</div></div>
+        <div class="ef-row section-header">Pasivo Corriente</div>
+        <div class="ef-row indent"><span>Cuentas por Pagar Proveedores</span><span class="ef-amount amount-neg">Q 151,000.00</span></div>
+        <div class="ef-row indent"><span>IGSS por Pagar (lab.+pat.)</span><span class="ef-amount amount-neg">Q 4,094.98</span></div>
+        <div class="ef-row indent"><span>IRTRA / INTECAP por Pagar</span><span class="ef-amount amount-neg">Q 468.00</span></div>
+        <div class="ef-row indent"><span>Reserva Bono 14</span><span class="ef-amount amount-neg">Q 1,950.00</span></div>
+        <div class="ef-row indent"><span>Reserva Aguinaldo</span><span class="ef-amount amount-neg">Q 1,950.00</span></div>
+        <div class="ef-row indent"><span>Reserva Vacaciones</span><span class="ef-amount amount-neg">Q 975.00</span></div>
+        <div class="ef-row subtotal"><span>Total Pasivo</span><span class="ef-amount amount-neg">Q 160,437.98</span></div>
+        <div class="ef-row section-header">Patrimonio</div>
+        <div class="ef-row indent"><span>Capital — Angelo Ramírez</span><span class="ef-amount amount-pos">Q 87,500.00</span></div>
+        <div class="ef-row indent"><span>Pérdida del Período</span><span class="ef-amount amount-neg">(Q 22,538.34)</span></div>
+        <div class="ef-row subtotal"><span>Total Patrimonio</span><span class="ef-amount" style="color:var(--warning)">Q 64,961.66</span></div>
+        <div class="ef-row total-final"><span>TOTAL PASIVO + PATRIMONIO</span><span>Q 225,399.64</span></div>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header"><div class="section-card-title"><i class="bi bi-pie-chart"></i> Estructura Financiera</div></div>
+        <div class="section-card-body"><div style="height:180px"><canvas id="chartBalance"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ NÓMINA -->
+<div class="page" id="page-nomina">
+  <div class="page-header">
+    <h2>Nómina Salarial</h2>
+    <p>Planilla de empleados y prestaciones · Enero 2026 · Código de Trabajo de Guatemala</p>
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3"><div class="stat-card" style="--card-accent:var(--info)"><div class="stat-icon" style="--icon-bg:rgba(41,128,185,0.1);--icon-color:var(--info)"><i class="bi bi-people-fill"></i></div><div class="stat-label">Empleados</div><div class="stat-value" id="nom-total-emp">—</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card" style="--card-accent:var(--success)"><div class="stat-icon" style="--icon-bg:rgba(45,158,107,0.1);--icon-color:var(--success)"><i class="bi bi-cash"></i></div><div class="stat-label">Planilla Mensual</div><div class="stat-value" id="nom-total-bruto" style="font-size:20px">—</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card" style="--card-accent:var(--warning)"><div class="stat-icon" style="--icon-bg:rgba(212,172,13,0.1);--icon-color:var(--warning)"><i class="bi bi-shield-check"></i></div><div class="stat-label">IGSS Patronal</div><div class="stat-value" id="nom-igss-pat" style="font-size:20px">—</div></div></div>
+    <div class="col-6 col-md-3"><div class="stat-card" style="--card-accent:var(--accent)"><div class="stat-icon"><i class="bi bi-briefcase"></i></div><div class="stat-label">Costo Total Laboral</div><div class="stat-value" id="nom-costo-total" style="font-size:20px">—</div></div></div>
+  </div>
+
+  <div class="section-card mb-4">
+    <div class="section-card-header">
+      <div class="section-card-title"><i class="bi bi-person-lines-fill"></i> Detalle de Planilla</div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-primary" onclick="abrirModalEmpleado()">
+          <i class="bi bi-person-plus"></i> Nuevo Empleado
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="exportTableCSV('tbl-nomina','nomina_enero_2026')">
+          <i class="bi bi-download"></i> Exportar CSV
+        </button>
+      </div>
+    </div>
+    <div class="section-card-body p-0">
+      <table id="tbl-nomina" class="table table-hover w-100">
+        <thead>
+          <tr><th>#</th><th>Nombre</th><th>Puesto</th><th class="text-end">Salario Bruto</th><th class="text-end">IGSS Lab. (4.83%)</th><th class="text-end">Salario Neto</th><th class="text-center">Acciones</th></tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="7" class="text-center py-3 text-muted">
+            <div class="spinner-border spinner-border-sm me-2"></div>Cargando nómina...
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-card-header"><div class="section-card-title"><i class="bi bi-calendar-check"></i> Prestaciones Laborales por Ley</div></div>
+    <div class="section-card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead><tr><th>Prestación</th><th>Base Legal</th><th>Cálculo</th><th class="text-end">Provisión Mensual</th><th class="text-center">Mes de Pago</th></tr></thead>
+        <tbody>
+          <tr><td>Bono 14</td><td><span class="tag tag-info">Decreto 42-92</span></td><td>1 salario / 12</td><td class="text-end amount-pos">Q 1,950.00</td><td class="text-center"><span class="tag tag-warning">Julio</span></td></tr>
+          <tr><td>Aguinaldo</td><td><span class="tag tag-info">Decreto 76-78</span></td><td>1 salario / 12</td><td class="text-end amount-pos">Q 1,950.00</td><td class="text-center"><span class="tag tag-warning">Diciembre</span></td></tr>
+          <tr><td>Vacaciones</td><td><span class="tag tag-info">C.T. Art. 130</span></td><td>15 días hábiles / 12</td><td class="text-end amount-pos">Q 975.00</td><td class="text-center"><span class="tag tag-success">Anual</span></td></tr>
+          <tr><td>IGSS Patronal</td><td><span class="tag tag-info">Decreto 295</span></td><td>12.67% s/salarios</td><td class="text-end amount-pos" id="prest-igss-pat">Q 2,964.78</td><td class="text-center"><span class="tag tag-accent">Mensual</span></td></tr>
+          <tr><td>IRTRA</td><td><span class="tag tag-info">Decreto 101-75</span></td><td>1% s/salarios</td><td class="text-end amount-pos">Q 234.00</td><td class="text-center"><span class="tag tag-accent">Mensual</span></td></tr>
+          <tr><td>INTECAP</td><td><span class="tag tag-info">Decreto 17-72</span></td><td>1% s/salarios</td><td class="text-end amount-pos">Q 234.00</td><td class="text-center"><span class="tag tag-accent">Mensual</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ PRODUCTOS -->
+<div class="page" id="page-productos">
+  <div class="page-header">
+    <h2>Catálogo de Productos</h2>
+    <p>Productos activos en 4 categorías · Dulces y Delicias del Valle, S.A.</p>
+  </div>
+  <div class="section-card">
+    <div class="section-card-header">
+      <div class="section-card-title"><i class="bi bi-bag-fill"></i> Inventario de Productos</div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-primary" onclick="abrirModalProducto()">
+          <i class="bi bi-plus-circle"></i> Nuevo Producto
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" onclick="exportTableCSV('tbl-productos','catalogo_productos')">
+          <i class="bi bi-download"></i> Exportar
+        </button>
+      </div>
+    </div>
+    <div class="section-card-body p-0">
+      <table id="tbl-productos" class="table table-hover w-100">
+        <thead><tr><th>#</th><th>Producto</th><th>Categoría</th><th>Presentación</th><th class="text-end">P. Compra</th><th class="text-end">P. Venta</th><th class="text-center">Margen</th><th class="text-center">Acciones</th></tr></thead>
+        <tbody id="productos-body">
+          <tr><td colspan="8" class="text-center py-3 text-muted">
+            <div class="spinner-border spinner-border-sm me-2"></div>Cargando productos...
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ IVA / ISR -->
+<div class="page" id="page-iva">
+  <div class="page-header">
+    <h2>Obligaciones Tributarias</h2>
+    <p>IVA y ISR · Dulces y Delicias del Valle, S.A. · Enero 2026</p>
+  </div>
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="iva-box">
+        <h4>IVA — Pequeño Contribuyente</h4>
+        <p>Decreto 27-92, Artículos 47 al 50</p>
+        <hr style="border-color:rgba(255,255,255,0.2);margin:16px 0">
+        <div class="d-flex justify-content-between mb-2" style="font-size:14px"><span style="opacity:.75">Total ventas del período</span><span class="fw-bold">Q 42,000.00</span></div>
+        <div class="d-flex justify-content-between mb-2" style="font-size:14px"><span style="opacity:.75">Tasa aplicable</span><span class="fw-bold">5%</span></div>
+        <div class="d-flex justify-content-between mb-2" style="font-size:14px"><span style="opacity:.75">IVA a pagar</span><span style="color:#f0943e;font-weight:800;font-size:20px;font-family:var(--font-serif)">Q 2,100.00</span></div>
+        <div class="d-flex justify-content-between" style="font-size:13px"><span style="opacity:.6">Formulario SAT</span><span>SAT-2046</span></div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="iva-box" style="background:linear-gradient(135deg,#1a5276,#1f618d)">
+        <h4>ISR — Opcional Simplificado</h4>
+        <p>Decreto 10-2012, Artículo 44</p>
+        <hr style="border-color:rgba(255,255,255,0.2);margin:16px 0">
+        <div class="d-flex justify-content-between mb-2" style="font-size:14px"><span style="opacity:.75">Ingresos del trimestre (est.)</span><span class="fw-bold">Q 42,000.00</span></div>
+        <div class="d-flex justify-content-between mb-2" style="font-size:14px"><span style="opacity:.75">Tasa (hasta Q30,000)</span><span class="fw-bold">5%</span></div>
+        <div class="d-flex justify-content-between mb-2" style="font-size:14px"><span style="opacity:.75">Tasa (excedente)</span><span class="fw-bold">7%</span></div>
+        <div class="d-flex justify-content-between" style="font-size:14px"><span style="opacity:.75">ISR estimado trimestral</span><span style="color:#f0943e;font-weight:800;font-size:20px;font-family:var(--font-serif)">Q 2,340.00</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-card-header"><div class="section-card-title"><i class="bi bi-calendar3"></i> Calendario de Obligaciones Tributarias</div></div>
+    <div class="section-card-body p-0">
+      <table class="table table-hover mb-0">
+        <thead><tr><th>Impuesto</th><th>Régimen</th><th>Tasa</th><th>Periodicidad</th><th>Formulario SAT</th><th class="text-center">Estado</th></tr></thead>
+        <tbody>
+          <tr><td><strong>IVA</strong></td><td>Pequeño Contribuyente</td><td class="amount-pos fw-bold">5% ingresos brutos</td><td>Mensual</td><td>SAT-2046</td><td class="text-center"><span class="tag tag-success">Al día</span></td></tr>
+          <tr><td><strong>ISR</strong></td><td>Opcional Simplificado</td><td class="amount-pos fw-bold">5% / 7%</td><td>Trimestral</td><td>SAT-1361</td><td class="text-center"><span class="tag tag-warning">Pendiente Q1</span></td></tr>
+          <tr><td><strong>IGSS Patronal</strong></td><td>Obligatorio</td><td class="amount-pos fw-bold">12.67% salarios</td><td>Mensual</td><td>Planilla IGSS</td><td class="text-center"><span class="tag tag-success">Al día</span></td></tr>
+          <tr><td><strong>IGSS Laboral</strong></td><td>Obligatorio</td><td class="amount-pos fw-bold">4.83% salarios</td><td>Mensual</td><td>Planilla IGSS</td><td class="text-center"><span class="tag tag-success">Al día</span></td></tr>
+          <tr><td><strong>IRTRA</strong></td><td>Obligatorio</td><td class="amount-pos fw-bold">1% salarios</td><td>Mensual</td><td>Planilla</td><td class="text-center"><span class="tag tag-success">Al día</span></td></tr>
+          <tr><td><strong>INTECAP</strong></td><td>Obligatorio</td><td class="amount-pos fw-bold">1% salarios</td><td>Mensual</td><td>Planilla</td><td class="text-center"><span class="tag tag-success">Al día</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════ NUEVA PARTIDA -->
+<div class="page" id="page-nueva-partida">
+  <div class="page-header">
+    <h2>Nueva Partida Contable</h2>
+    <p>Registra una partida de diario · Los cambios se reflejan automáticamente en Libro Mayor y Balance de Saldos</p>
+  </div>
+  <div class="row g-3">
+    <div class="col-lg-8">
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title"><i class="bi bi-journal-plus"></i> Datos de la Partida</div>
+          <button class="btn btn-sm btn-outline-secondary" onclick="limpiarFormularioPartida()">
+            <i class="bi bi-arrow-counterclockwise"></i> Limpiar
+          </button>
+        </div>
+        <div class="section-card-body">
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <label class="form-label fw-bold">Fecha *</label>
+              <input type="date" id="np-fecha" class="form-control">
+            </div>
+            <div class="col-md-8">
+              <label class="form-label fw-bold">Concepto *</label>
+              <input type="text" id="np-concepto" class="form-control" placeholder="Ej: Venta al contado, Pago de sueldos...">
+            </div>
+          </div>
+          <label class="form-label fw-bold mb-2">Líneas Contables *</label>
+          <div class="table-responsive mb-3">
+            <table class="table table-bordered mb-0" id="tbl-lineas-partida">
+              <thead style="background:#f5f7fa">
+                <tr>
+                  <th style="width:40px">#</th>
+                  <th>Cuenta Contable</th>
+                  <th style="width:160px" class="text-end">Debe (Q)</th>
+                  <th style="width:160px" class="text-end">Haber (Q)</th>
+                  <th style="width:50px"></th>
+                </tr>
+              </thead>
+              <tbody id="np-lineas"></tbody>
+              <tfoot>
+                <tr style="background:#f8fafc">
+                  <td colspan="2" class="fw-bold text-end">TOTALES</td>
+                  <td class="text-end fw-bold amount-debe" id="np-total-debe">Q 0.00</td>
+                  <td class="text-end fw-bold amount-haber" id="np-total-haber">Q 0.00</td>
+                  <td></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <button class="btn btn-outline-primary btn-sm mb-4" onclick="agregarLineaPartida()">
+            <i class="bi bi-plus-lg me-1"></i> Agregar línea
+          </button>
+          <div id="np-cuadre-panel" class="rounded p-3 mb-4" style="background:#f0f4f8;border:2px solid var(--border)">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+              <div class="d-flex align-items-center gap-3">
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase">Total Debe</div>
+                  <div class="amount-debe fw-bold" style="font-size:20px;font-family:var(--font-serif)" id="np-panel-debe">Q 0.00</div>
+                </div>
+                <div style="font-size:22px;color:var(--text-muted)">=</div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase">Total Haber</div>
+                  <div class="amount-haber fw-bold" style="font-size:20px;font-family:var(--font-serif)" id="np-panel-haber">Q 0.00</div>
+                </div>
+                <div style="font-size:22px;color:var(--text-muted)">→</div>
+                <div>
+                  <div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase">Diferencia</div>
+                  <div class="fw-bold" style="font-size:20px;font-family:var(--font-serif)" id="np-panel-diff">Q 0.00</div>
+                </div>
+              </div>
+              <div id="np-estado-cuadre">
+                <span class="tag tag-warning"><i class="bi bi-hourglass-split me-1"></i>Pendiente</span>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary px-4" onclick="guardarPartidaNueva()">
+              <i class="bi bi-save me-2"></i>Guardar Partida
+            </button>
+            <button class="btn btn-outline-secondary" onclick="previsualizarPartida()">
+              <i class="bi bi-eye me-2"></i>Previsualizar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="section-card mb-3">
+        <div class="section-card-header">
+          <div class="section-card-title"><i class="bi bi-search"></i> Buscar Cuenta</div>
+        </div>
+        <div class="section-card-body">
+          <input type="text" id="np-buscar-cuenta" class="form-control form-control-sm mb-2"
+            placeholder="Código o nombre..." oninput="filtrarCuentasSidebar()">
+          <div id="np-lista-cuentas" style="max-height:300px;overflow-y:auto;font-size:13px">
+            <div class="text-muted text-center py-2">Cargando cuentas...</div>
+          </div>
+          <div class="mt-2" style="font-size:11px;color:var(--text-muted)">
+            <i class="bi bi-info-circle"></i> Clic en una cuenta para agregarla como línea
+          </div>
+        </div>
+      </div>
+      <div class="section-card">
+        <div class="section-card-header">
+          <div class="section-card-title"><i class="bi bi-clock-history"></i> Últimas Partidas</div>
+        </div>
+        <div class="section-card-body p-0">
+          <div id="np-partidas-recientes" style="font-size:13px">
+            <div class="text-muted text-center py-3">Cargando...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════ USUARIOS -->
+<div class="page" id="page-usuarios">
+  <div class="page-header">
+    <h2>Gestión de Usuarios</h2>
+    <p>Administra los usuarios con acceso al sistema · Solo Contador o superior</p>
+  </div>
+  <div class="section-card">
+    <div class="section-card-header">
+      <div class="section-card-title"><i class="bi bi-people-fill"></i> Usuarios del Sistema</div>
+      <button class="btn btn-sm btn-primary" onclick="abrirModalUsuario()">
+        <i class="bi bi-person-plus me-1"></i> Nuevo Usuario
+      </button>
+    </div>
+    <div class="section-card-body p-0">
+      <table class="table table-hover mb-0" id="tbl-usuarios">
+        <thead>
+          <tr><th>#</th><th>Nombre</th><th>Usuario</th><th>Rol</th><th class="text-center">Acciones</th></tr>
+        </thead>
+        <tbody id="usuarios-body">
+          <tr><td colspan="5" class="text-center py-3 text-muted">
+            <div class="spinner-border spinner-border-sm me-2"></div>Cargando...
+          </td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+</div><!-- /main-wrap -->
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="scrip.js"></script>
+
+</body>
+</html>
