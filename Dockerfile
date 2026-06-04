@@ -1,7 +1,8 @@
 FROM php:8.2-apache
 
-# Habilitar mod_rewrite
-RUN a2enmod rewrite
+# Fix MPM conflict
+RUN a2dismod mpm_event mpm_worker 2>/dev/null || true \
+    && a2enmod mpm_prefork rewrite
 
 # Instalar extensión mysqli
 RUN docker-php-ext-install mysqli
