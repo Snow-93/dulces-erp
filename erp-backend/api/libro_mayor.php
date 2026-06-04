@@ -60,7 +60,7 @@ while ($row = $res->fetch_assoc()) {
             haber
         FROM libro_diario
         WHERE id_cuenta = {$row['id_cuenta']} $filtroM
-        ORDER BY id_partida ASC, id_linea ASC
+        ORDER BY id ASC
     ");
 
     $movimientos = [];
