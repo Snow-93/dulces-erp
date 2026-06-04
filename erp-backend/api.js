@@ -10,7 +10,7 @@
 
 // ── Configuración ───────────────────────────────────────────
 // Cambia esta ruta si tu proyecto está en una subcarpeta de htdocs
-const API_BASE = 'http://localhost/erp-backend/api';
+const API_BASE = 'https://dulces-erp-production.up.railway.app/erp-backend/api';
 
 // ── Helper: fetch con manejo de errores ─────────────────────
 async function apiGet(endpoint) {
