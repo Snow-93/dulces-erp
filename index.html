@@ -396,17 +396,17 @@
         <div class="section-card-header">
           <div class="section-card-title"><i class="bi bi-list-ul"></i> Cuentas Disponibles</div>
           <button class="btn btn-sm btn-primary" onclick="abrirModalNuevaCuenta()">
-            <i class="bi bi-plus"></i> Nueva
+            <i class="bi bi-plus"></i> Nueva Cuenta
           </button>
         </div>
         <div class="section-card-body p-0">
           <div style="max-height:220px;overflow-y:auto">
             <table class="table table-sm mb-0" style="font-size:12px" id="np-ref-cuentas">
               <thead style="position:sticky;top:0;background:#f5f7fa">
-                <tr><th>Código</th><th>Cuenta</th><th>Tipo</th></tr>
+                <tr><th>Código</th><th>Cuenta</th><th>Tipo</th><th class="text-center">—</th></tr>
               </thead>
               <tbody id="np-cuentas-lista">
-                <tr><td colspan="3" class="text-center text-muted py-2">Cargando...</td></tr>
+                <tr><td colspan="4" class="text-center text-muted py-2">Cargando...</td></tr>
               </tbody>
             </table>
           </div>
@@ -577,58 +577,32 @@
 <div class="page" id="page-resultados">
   <div class="page-header">
     <h2>Estado de Resultados</h2>
-    <p>Dulces y Delicias del Valle, S.A. · Del 01 al 31 de Enero de 2026</p>
+    <p>Dulces y Delicias del Valle, S.A. · <span class="periodo-label fw-bold" style="color:var(--accent)">Enero 2026</span> · NIC 1 — Método de la Naturaleza del Gasto</p>
   </div>
   <div class="row g-3">
-    <div class="col-lg-6">
+    <div class="col-lg-7">
       <div class="section-card">
         <div class="section-card-header">
           <div class="section-card-title"><i class="bi bi-file-earmark-bar-graph"></i> Estado de Resultados</div>
-          <span class="tag tag-accent">Enero 2026</span>
+          <div class="d-flex gap-2">
+            <span class="tag tag-info">NIC 1</span>
+            <button class="btn btn-sm btn-outline-secondary" onclick="descargarPDF()"><i class="bi bi-file-pdf me-1"></i>PDF</button>
+          </div>
         </div>
-        <div class="ef-row section-header">Ingresos por Ventas</div>
-        <div class="ef-row indent"><span>Ventas al Contado</span><span class="ef-amount amount-pos">Q 25,000.00</span></div>
-        <div class="ef-row indent"><span>Ventas al Crédito</span><span class="ef-amount amount-pos">Q 17,000.00</span></div>
-        <div class="ef-row subtotal"><span>Total Ingresos</span><span class="ef-amount amount-pos">Q 42,000.00</span></div>
-        <div class="ef-row section-header">Costo de Ventas</div>
-        <div class="ef-row indent"><span>Costo de Mercadería Vendida</span><span class="ef-amount amount-neg">(Q 28,500.00)</span></div>
-        <div class="ef-row subtotal"><span>Utilidad Bruta</span><span class="ef-amount" style="color:var(--warning)">Q 13,500.00</span></div>
-        <div class="ef-row section-header">Gastos de Operación</div>
-        <div class="ef-row indent"><span>Sueldos y Salarios</span><span class="ef-amount amount-neg">(Q 23,400.00)</span></div>
-        <div class="ef-row indent"><span>Cuota Patronal IGSS (12.67%)</span><span class="ef-amount amount-neg">(Q 2,964.78)</span></div>
-        <div class="ef-row indent"><span>IRTRA e INTECAP (1% c/u)</span><span class="ef-amount amount-neg">(Q 468.00)</span></div>
-        <div class="ef-row indent"><span>Provisión Bono 14</span><span class="ef-amount amount-neg">(Q 1,950.00)</span></div>
-        <div class="ef-row indent"><span>Provisión Aguinaldo</span><span class="ef-amount amount-neg">(Q 1,950.00)</span></div>
-        <div class="ef-row indent"><span>Provisión Vacaciones</span><span class="ef-amount amount-neg">(Q 975.00)</span></div>
-        <div class="ef-row indent"><span>Dep. Vehículo (20% anual)</span><span class="ef-amount amount-neg">(Q 1,416.67)</span></div>
-        <div class="ef-row indent"><span>Dep. Mobiliario (20% anual)</span><span class="ef-amount amount-neg">(Q 300.00)</span></div>
-        <div class="ef-row indent"><span>Dep. Equipo Cómputo (33.33%)</span><span class="ef-amount amount-neg">(Q 347.22)</span></div>
-        <div class="ef-row indent"><span>Dep. Herramientas (25%)</span><span class="ef-amount amount-neg">(Q 166.67)</span></div>
-        <div class="ef-row subtotal"><span>Total Gastos Operación</span><span class="ef-amount amount-neg">(Q 33,938.34)</span></div>
-        <div class="ef-row section-header">Impuestos</div>
-        <div class="ef-row indent"><span>IVA Pequeño Contribuyente 5%</span><span class="ef-amount amount-neg">(Q 2,100.00)</span></div>
-        <div class="ef-row total-final"><span>PÉRDIDA NETA DEL PERÍODO</span><span>(Q 22,538.34)</span></div>
+        <div id="er-contenido">
+          <div class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Cargando...</div>
+        </div>
       </div>
     </div>
-    <div class="col-lg-6">
+    <div class="col-lg-5">
       <div class="section-card mb-3">
         <div class="section-card-header"><div class="section-card-title"><i class="bi bi-pie-chart"></i> Distribución de Egresos</div></div>
         <div class="section-card-body"><div style="height:220px"><canvas id="chartResultados"></canvas></div></div>
       </div>
-      <div class="section-card">
-        <div class="section-card-header"><div class="section-card-title"><i class="bi bi-info-circle"></i> Análisis del Resultado</div></div>
-        <div class="section-card-body">
-          <div class="alert alert-warning d-flex gap-2 mb-2" style="font-size:13px">
-            <i class="bi bi-exclamation-triangle-fill mt-1"></i>
-            <div>La pérdida del primer mes es <strong>normal en empresas nuevas</strong>. Los gastos fijos superan las ventas iniciales. Se espera equilibrio a partir del 3er mes.</div>
-          </div>
-          <table class="table table-sm mb-0" style="font-size:13px">
-            <tbody>
-              <tr><td class="text-muted">Margen Bruto</td><td class="text-end amount-pos">32.14%</td></tr>
-              <tr><td class="text-muted">Ratio Gastos/Ventas</td><td class="text-end amount-neg">80.80%</td></tr>
-              <tr><td class="text-muted">Ventas necesarias para equilibrio</td><td class="text-end amount">Q 56,438.34</td></tr>
-            </tbody>
-          </table>
+      <div class="section-card" id="er-ratios">
+        <div class="section-card-header"><div class="section-card-title"><i class="bi bi-graph-up"></i> Ratios Financieros (NIC 1)</div></div>
+        <div class="section-card-body" id="er-ratios-body">
+          <div class="text-center text-muted">Cargando...</div>
         </div>
       </div>
     </div>
@@ -639,47 +613,29 @@
 <div class="page" id="page-balance">
   <div class="page-header">
     <h2>Balance General</h2>
-    <p>Dulces y Delicias del Valle, S.A. · Al 31 de Enero de 2026</p>
+    <p>Dulces y Delicias del Valle, S.A. · Al cierre de <span class="periodo-label fw-bold" style="color:var(--accent)">Enero 2026</span> · NIC 1 — Corriente / No Corriente</p>
   </div>
   <div class="row g-3">
     <div class="col-lg-6">
       <div class="section-card">
-        <div class="section-card-header"><div class="section-card-title"><i class="bi bi-bank"></i> ACTIVOS</div></div>
-        <div class="ef-row section-header">Activo Corriente</div>
-        <div class="ef-row indent"><span>Caja</span><span class="ef-amount amount-pos">Q 35,629.62</span></div>
-        <div class="ef-row indent"><span>Bancos</span><span class="ef-amount amount-pos">Q 47,000.00</span></div>
-        <div class="ef-row indent"><span>Cuentas por Cobrar</span><span class="ef-amount">Q 0.00</span></div>
-        <div class="ef-row indent"><span>Mercaderías</span><span class="ef-amount amount-pos">Q 21,500.00</span></div>
-        <div class="ef-row subtotal"><span>Total Activo Corriente</span><span class="ef-amount" style="color:var(--primary)">Q 104,129.62</span></div>
-        <div class="ef-row section-header">Activo No Corriente</div>
-        <div class="ef-row indent"><span>Vehículo de Reparto</span><span class="ef-amount">Q 85,000.00</span></div>
-        <div class="ef-row indent" style="color:var(--danger);font-size:12px"><span>(−) Dep. Acum. Vehículo</span><span>(Q 1,416.67)</span></div>
-        <div class="ef-row indent"><span>Mobiliario y Equipo</span><span class="ef-amount">Q 18,000.00</span></div>
-        <div class="ef-row indent" style="color:var(--danger);font-size:12px"><span>(−) Dep. Acum. Mobiliario</span><span>(Q 300.00)</span></div>
-        <div class="ef-row indent"><span>Equipo de Cómputo</span><span class="ef-amount">Q 12,500.00</span></div>
-        <div class="ef-row indent" style="color:var(--danger);font-size:12px"><span>(−) Dep. Acum. Eq. Cómputo</span><span>(Q 347.22)</span></div>
-        <div class="ef-row indent"><span>Herramientas y Eq. Bodega</span><span class="ef-amount">Q 8,000.00</span></div>
-        <div class="ef-row indent" style="color:var(--danger);font-size:12px"><span>(−) Dep. Acum. Herramientas</span><span>(Q 166.67)</span></div>
-        <div class="ef-row subtotal"><span>Total Activo No Corriente</span><span class="ef-amount" style="color:var(--primary)">Q 121,269.44</span></div>
-        <div class="ef-row total-final"><span>TOTAL ACTIVO</span><span>Q 225,399.06</span></div>
+        <div class="section-card-header">
+          <div class="section-card-title"><i class="bi bi-bank"></i> ACTIVOS</div>
+          <span class="tag tag-info">NIC 1</span>
+        </div>
+        <div id="bg-activos">
+          <div class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Cargando...</div>
+        </div>
       </div>
     </div>
     <div class="col-lg-6">
       <div class="section-card mb-3">
-        <div class="section-card-header"><div class="section-card-title"><i class="bi bi-credit-card"></i> PASIVO Y PATRIMONIO</div></div>
-        <div class="ef-row section-header">Pasivo Corriente</div>
-        <div class="ef-row indent"><span>Cuentas por Pagar Proveedores</span><span class="ef-amount amount-neg">Q 151,000.00</span></div>
-        <div class="ef-row indent"><span>IGSS por Pagar (lab.+pat.)</span><span class="ef-amount amount-neg">Q 4,094.98</span></div>
-        <div class="ef-row indent"><span>IRTRA / INTECAP por Pagar</span><span class="ef-amount amount-neg">Q 468.00</span></div>
-        <div class="ef-row indent"><span>Reserva Bono 14</span><span class="ef-amount amount-neg">Q 1,950.00</span></div>
-        <div class="ef-row indent"><span>Reserva Aguinaldo</span><span class="ef-amount amount-neg">Q 1,950.00</span></div>
-        <div class="ef-row indent"><span>Reserva Vacaciones</span><span class="ef-amount amount-neg">Q 975.00</span></div>
-        <div class="ef-row subtotal"><span>Total Pasivo</span><span class="ef-amount amount-neg">Q 160,437.98</span></div>
-        <div class="ef-row section-header">Patrimonio</div>
-        <div class="ef-row indent"><span>Capital — Angelo Ramírez</span><span class="ef-amount amount-pos">Q 87,500.00</span></div>
-        <div class="ef-row indent"><span>Pérdida del Período</span><span class="ef-amount amount-neg">(Q 22,538.34)</span></div>
-        <div class="ef-row subtotal"><span>Total Patrimonio</span><span class="ef-amount" style="color:var(--warning)">Q 64,961.66</span></div>
-        <div class="ef-row total-final"><span>TOTAL PASIVO + PATRIMONIO</span><span>Q 225,399.64</span></div>
+        <div class="section-card-header">
+          <div class="section-card-title"><i class="bi bi-credit-card"></i> PASIVO Y PATRIMONIO</div>
+          <button class="btn btn-sm btn-outline-secondary" onclick="descargarPDF()"><i class="bi bi-file-pdf me-1"></i>PDF</button>
+        </div>
+        <div id="bg-pasivo">
+          <div class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Cargando...</div>
+        </div>
       </div>
       <div class="section-card">
         <div class="section-card-header"><div class="section-card-title"><i class="bi bi-pie-chart"></i> Estructura Financiera</div></div>

@@ -6,244 +6,173 @@
 <title>Iniciar Sesión — Dulces y Delicias del Valle, S.A.</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,400&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Fraunces:wght@700&display=swap" rel="stylesheet"/>
 <style>
-  body {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(135deg, #0f2137 0%, #1a3c5e 50%, #234f7a 100%);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  }
-
-  .login-wrap {
-    width: 100%;
-    max-width: 420px;
-    padding: 20px;
-  }
-
-  .login-card {
-    background: #fff;
-    border-radius: 20px;
-    padding: 44px 40px;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.25);
-  }
-
-  .login-logo {
-    width: 60px; height: 60px;
-    background: linear-gradient(135deg, #e87c34, #f5a55a);
-    border-radius: 16px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 28px;
-    margin: 0 auto 16px;
-    box-shadow: 0 8px 20px rgba(232,124,52,0.35);
-  }
-
-  .login-title {
-    font-family: 'Fraunces', serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: #1e2d3d;
-    text-align: center;
-    margin-bottom: 4px;
-  }
-
-  .login-sub {
-    font-size: 12px;
-    color: #6b7c8d;
-    text-align: center;
-    margin-bottom: 32px;
-  }
-
-  .form-label {
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #6b7c8d;
-    margin-bottom: 6px;
-  }
-
-  .form-control, .form-select {
-    border: 1.5px solid #dce4ed;
-    border-radius: 10px;
-    padding: 12px 14px;
-    font-size: 14px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-
-  .form-control:focus, .form-select:focus {
-    border-color: #1a3c5e;
-    box-shadow: 0 0 0 3px rgba(26,60,94,0.1);
-  }
-
-  .input-icon {
-    position: relative;
-  }
-
-  .input-icon i {
-    position: absolute;
-    left: 14px; top: 50%;
-    transform: translateY(-50%);
-    color: #6b7c8d;
-    font-size: 16px;
-    z-index: 5;
-  }
-
-  .input-icon .form-control,
-  .input-icon .form-select {
-    padding-left: 40px;
-  }
-
-  .btn-toggle-pass {
-    position: absolute;
-    right: 12px; top: 50%;
-    transform: translateY(-50%);
-    background: none; border: none;
-    color: #6b7c8d; cursor: pointer;
-    font-size: 16px; z-index: 5;
-    padding: 0;
-  }
-
-  .btn-login {
-    background: linear-gradient(135deg, #1a3c5e, #234f7a);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 13px;
-    font-size: 15px;
-    font-weight: 700;
-    width: 100%;
-    transition: transform 0.2s, box-shadow 0.2s;
-    margin-top: 8px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  }
-
-  .btn-login:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(26,60,94,0.3);
-    color: #fff;
-  }
-
-  .btn-login:disabled {
-    opacity: 0.7;
-    transform: none;
-  }
-
-  .login-footer {
-    text-align: center;
-    margin-top: 24px;
-    font-size: 12px;
-    color: rgba(255,255,255,0.45);
-  }
-
-  .error-box {
-    background: #fdf0f0;
-    border: 1px solid #f5c6c6;
-    border-radius: 10px;
-    padding: 12px 16px;
-    font-size: 13px;
-    color: #c0392b;
-    display: none;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .rol-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 700;
-  }
-
-  @keyframes shake {
-    0%,100%{transform:translateX(0)}
-    20%{transform:translateX(-8px)}
-    40%{transform:translateX(8px)}
-    60%{transform:translateX(-4px)}
-    80%{transform:translateX(4px)}
-  }
-  .shake { animation: shake 0.4s ease; }
+:root {
+  --primary: #1a3c5e;
+  --accent:  #e87c34;
+  --border:  #dce4ed;
+  --text:    #1e2d3d;
+  --muted:   #6b7c8d;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f2137 0%, #1a3c5e 50%, #234f7a 100%);
+}
+.card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 44px 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+  margin: 20px;
+}
+.logo {
+  width: 60px; height: 60px;
+  background: linear-gradient(135deg, #e87c34, #f5a55a);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  margin: 0 auto 16px;
+}
+h1 { font-family: 'Fraunces', serif; font-size: 22px; color: var(--text); text-align: center; margin-bottom: 4px; }
+.sub { font-size: 12px; color: var(--muted); text-align: center; margin-bottom: 28px; }
+label { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 6px; }
+.field { position: relative; margin-bottom: 16px; }
+.field i { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 16px; pointer-events: none; }
+.field input, .field select {
+  width: 100%; padding: 12px 14px 12px 40px;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif;
+  outline: none; transition: border-color .2s;
+}
+.field input:focus, .field select:focus { border-color: var(--primary); }
+.eye { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--muted); font-size: 16px; }
+.btn-main {
+  width: 100%; padding: 13px;
+  background: linear-gradient(135deg, var(--primary), #234f7a);
+  color: #fff; border: none; border-radius: 10px;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: opacity .2s, transform .2s;
+  margin-top: 4px;
+}
+.btn-main:hover { opacity: .9; transform: translateY(-1px); }
+.btn-main:disabled { opacity: .6; cursor: not-allowed; transform: none; }
+.btn-sec {
+  width: 100%; padding: 11px;
+  background: none; border: 1.5px solid var(--border); border-radius: 10px;
+  font-size: 14px; cursor: pointer; color: var(--muted); margin-top: 8px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.btn-link { background: none; border: none; color: var(--accent); font-weight: 700; font-size: 13px; cursor: pointer; padding: 0 4px; }
+.error { background: #fdf0f0; border: 1px solid #f5c6c6; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #c0392b; margin-bottom: 14px; display: none; }
+.success { background: #f0fdf4; border: 1px solid #86efac; border-radius: 10px; padding: 10px 14px; font-size: 13px; color: #166534; margin-bottom: 14px; display: none; }
+.divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+.footer { text-align: center; margin-top: 20px; font-size: 11px; color: rgba(255,255,255,.4); }
 </style>
 </head>
 <body>
 
-<div class="login-wrap">
-  <div class="login-card">
+<div class="card">
+  <div class="logo">🍬</div>
+  <h1>Dulces y Delicias del Valle</h1>
+  <p class="sub">Sistema Contable ERP · 2026 · Inicia sesión para continuar</p>
 
-    <!-- Logo -->
-    <div class="login-logo">🍬</div>
-    <div class="login-title">Dulces y Delicias del Valle</div>
-    <div class="login-sub">Sistema Contable ERP · 2026 · Inicia sesión para continuar</div>
+  <!-- MENSAJES -->
+  <div class="error" id="msg-error"></div>
+  <div class="success" id="msg-ok"></div>
 
-    <!-- Error box -->
-    <div class="error-box" id="error-box">
-      <i class="bi bi-exclamation-triangle-fill"></i>
-      <span id="error-msg">Usuario o contraseña incorrectos.</span>
+  <!-- ── PANEL LOGIN ── -->
+  <div id="panel-login">
+    <div class="field">
+      <label>Usuario</label>
+      <i class="bi bi-person"></i>
+      <input type="text" id="inp-user" placeholder="Tu usuario" autocomplete="username"/>
     </div>
-
-    <!-- Formulario -->
-    <div class="mb-3">
-      <label class="form-label">Usuario</label>
-      <div class="input-icon">
-        <i class="bi bi-person"></i>
-        <input type="text" id="inp-usuario" class="form-control"
-          placeholder="Tu nombre de usuario" autocomplete="username">
-      </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <i class="bi bi-lock"></i>
+      <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password"/>
+      <button class="eye" type="button" onclick="togglePass('inp-pass','eye1')"><i id="eye1" class="bi bi-eye"></i></button>
     </div>
-
-    <div class="mb-3">
-      <label class="form-label">Contraseña</label>
-      <div class="input-icon" style="position:relative">
-        <i class="bi bi-lock"></i>
-        <input type="password" id="inp-password" class="form-control"
-          placeholder="••••••••" autocomplete="current-password"
-          onkeydown="if(event.key==='Enter') iniciarSesion()">
-        <button class="btn-toggle-pass" onclick="togglePass()" tabindex="-1">
-          <i class="bi bi-eye" id="icon-eye"></i>
-        </button>
-      </div>
+    <div class="field">
+      <label>Rol</label>
+      <i class="bi bi-shield-check"></i>
+      <select id="inp-rol">
+        <option value="">— Selecciona tu rol —</option>
+        <option value="Gerente General">Gerente General</option>
+        <option value="Contador">Contador</option>
+        <option value="Vendedor / Asesor">Vendedor / Asesor</option>
+        <option value="Bodeguero">Bodeguero</option>
+        <option value="Piloto / Repartidor">Piloto / Repartidor</option>
+      </select>
     </div>
-
-    <div class="mb-4">
-      <label class="form-label">Rol</label>
-      <div class="input-icon">
-        <i class="bi bi-shield-check"></i>
-        <select id="inp-rol" class="form-select">
-          <option value="">— Selecciona tu rol —</option>
-          <option value="Gerente General">Gerente General</option>
-          <option value="Contador">Contador</option>
-          <option value="Vendedor / Asesor">Vendedor / Asesor</option>
-          <option value="Bodeguero">Bodeguero</option>
-          <option value="Piloto / Repartidor">Piloto / Repartidor</option>
-        </select>
-      </div>
-    </div>
-
-    <button class="btn-login" id="btn-login" onclick="iniciarSesion()">
+    <button class="btn-main" id="btn-login" onclick="iniciarSesion()">
       <i class="bi bi-box-arrow-in-right me-2"></i> Iniciar Sesión
     </button>
-
+    <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--muted)">
+      ¿No tienes cuenta?
+      <button class="btn-link" onclick="mostrarPanel('registro')">Crear cuenta</button>
+    </div>
   </div>
 
-  <div class="login-footer">
-    © 2026 Dulces y Delicias del Valle, S.A. · Sistema Contable ERP
+  <!-- ── PANEL REGISTRO ── -->
+  <div id="panel-registro" style="display:none">
+    <hr class="divider">
+    <p style="font-size:13px;font-weight:700;color:var(--text);text-align:center;margin-bottom:16px">
+      <i class="bi bi-person-plus" style="color:var(--accent)"></i> Crear nueva cuenta
+    </p>
+    <div class="field">
+      <label>Nombre Completo</label>
+      <i class="bi bi-person-badge"></i>
+      <input type="text" id="reg-nombre" placeholder="Tu nombre completo"/>
+    </div>
+    <div class="field">
+      <label>Usuario</label>
+      <i class="bi bi-at"></i>
+      <input type="text" id="reg-user" placeholder="Nombre de usuario único"/>
+    </div>
+    <div class="field">
+      <label>Contraseña</label>
+      <i class="bi bi-lock"></i>
+      <input type="password" id="reg-pass" placeholder="Mínimo 6 caracteres"/>
+      <button class="eye" type="button" onclick="togglePass('reg-pass','eye2')"><i id="eye2" class="bi bi-eye"></i></button>
+    </div>
+    <div class="field">
+      <label>Rol</label>
+      <i class="bi bi-shield-check"></i>
+      <select id="reg-rol">
+        <option value="">— Selecciona tu rol —</option>
+        <option value="Gerente General">Gerente General</option>
+        <option value="Contador">Contador</option>
+        <option value="Vendedor / Asesor">Vendedor / Asesor</option>
+        <option value="Bodeguero">Bodeguero</option>
+        <option value="Piloto / Repartidor">Piloto / Repartidor</option>
+      </select>
+    </div>
+    <button class="btn-main" id="btn-reg" onclick="registrar()" style="background:linear-gradient(135deg,var(--accent),#f5a55a)">
+      <i class="bi bi-person-check me-2"></i> Crear Cuenta
+    </button>
+    <button class="btn-sec" onclick="mostrarPanel('login')">← Volver al login</button>
   </div>
 </div>
+
+<p class="footer">© 2026 Dulces y Delicias del Valle, S.A.</p>
 
 <script>
 const API = 'http://localhost/dulces-erp/erp-backend/api';
 
-function togglePass() {
-  const inp  = document.getElementById('inp-password');
-  const icon = document.getElementById('icon-eye');
+// ── Helpers ─────────────────────────────────────────────
+function togglePass(inputId, iconId) {
+  var inp  = document.getElementById(inputId);
+  var icon = document.getElementById(iconId);
   if (inp.type === 'password') {
     inp.type = 'text';
     icon.className = 'bi bi-eye-slash';
@@ -253,64 +182,150 @@ function togglePass() {
   }
 }
 
+function mostrarPanel(panel) {
+  document.getElementById('panel-login').style.display    = panel === 'login'    ? 'block' : 'none';
+  document.getElementById('panel-registro').style.display = panel === 'registro' ? 'block' : 'none';
+  limpiarMensajes();
+}
+
 function mostrarError(msg) {
-  const box = document.getElementById('error-box');
-  document.getElementById('error-msg').textContent = msg;
-  box.style.display = 'flex';
-  document.querySelector('.login-card').classList.add('shake');
-  setTimeout(() => document.querySelector('.login-card').classList.remove('shake'), 400);
+  var el = document.getElementById('msg-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('msg-ok').style.display = 'none';
 }
 
-function ocultarError() {
-  document.getElementById('error-box').style.display = 'none';
+function mostrarOk(msg) {
+  var el = document.getElementById('msg-ok');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('msg-error').style.display = 'none';
 }
 
-async function iniciarSesion() {
-  const usuario = document.getElementById('inp-usuario').value.trim();
-  const password = document.getElementById('inp-password').value;
-  const rol      = document.getElementById('inp-rol').value;
+function limpiarMensajes() {
+  document.getElementById('msg-error').style.display = 'none';
+  document.getElementById('msg-ok').style.display    = 'none';
+}
 
-  ocultarError();
+function setBtnLoading(id, loading, texto) {
+  var btn = document.getElementById(id);
+  btn.disabled = loading;
+  btn.innerHTML = loading
+    ? '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Espera...'
+    : texto;
+}
+
+// ── Login ────────────────────────────────────────────────
+function iniciarSesion() {
+  limpiarMensajes();
+
+  var usuario = document.getElementById('inp-user').value.trim();
+  var password = document.getElementById('inp-pass').value;
+  var rol      = document.getElementById('inp-rol').value;
 
   if (!usuario || !password || !rol) {
-    mostrarError('Completa todos los campos para continuar.');
+    mostrarError('Completa todos los campos.');
     return;
   }
 
-  const btn = document.getElementById('btn-login');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Verificando...';
+  setBtnLoading('btn-login', true, '');
 
-  try {
-    const res  = await fetch(`${API}/login.php`, {
-      method : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body   : JSON.stringify({ usuario, password, rol })
-    });
-    const text = await res.text();
-    const match = text.match(/\{[\s\S]*\}/);
-    const data  = match ? JSON.parse(match[0]) : null;
+  fetch(API + '/login.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ usuario: usuario, password: password, rol: rol })
+  })
+  .then(function(res) { return res.text(); })
+  .then(function(text) {
+    var data = null;
+    try {
+      var match = text.match(/\{[\s\S]*\}/);
+      data = match ? JSON.parse(match[0]) : null;
+    } catch(e) {
+      mostrarError('Error al procesar respuesta del servidor.');
+      setBtnLoading('btn-login', false, '<i class="bi bi-box-arrow-in-right me-2"></i> Iniciar Sesión');
+      return;
+    }
 
-    if (data?.ok) {
-      // Guardar sesión en sessionStorage
+    if (data && data.ok) {
       sessionStorage.setItem('erp_usuario', JSON.stringify({
-        id     : data.id,
-        nombre : data.nombre,
+        id:      data.id,
+        nombre:  data.nombre,
         usuario: data.usuario,
-        rol    : data.rol,
+        rol:     data.rol
       }));
-      // Redirigir al sistema
       window.location.href = 'index.html';
     } else {
-      mostrarError(data?.mensaje || 'Usuario, contraseña o rol incorrecto.');
+      mostrarError(data ? data.mensaje : 'Error desconocido.');
+      setBtnLoading('btn-login', false, '<i class="bi bi-box-arrow-in-right me-2"></i> Iniciar Sesión');
     }
-  } catch (err) {
-    mostrarError('No se puede conectar con el servidor. Verifica que XAMPP esté activo.');
+  })
+  .catch(function(err) {
+    mostrarError('No se pudo conectar. ¿Está XAMPP activo?');
+    setBtnLoading('btn-login', false, '<i class="bi bi-box-arrow-in-right me-2"></i> Iniciar Sesión');
+    console.error(err);
+  });
+}
+
+// ── Registro ─────────────────────────────────────────────
+function registrar() {
+  limpiarMensajes();
+
+  var nombre   = document.getElementById('reg-nombre').value.trim();
+  var usuario  = document.getElementById('reg-user').value.trim();
+  var password = document.getElementById('reg-pass').value;
+  var rol      = document.getElementById('reg-rol').value;
+
+  if (!nombre || !usuario || !password || !rol) {
+    mostrarError('Completa todos los campos.');
+    return;
+  }
+  if (password.length < 6) {
+    mostrarError('La contraseña debe tener al menos 6 caracteres.');
+    return;
   }
 
-  btn.disabled = false;
-  btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-2"></i> Iniciar Sesión';
+  setBtnLoading('btn-reg', true, '');
+
+  fetch(API + '/usuarios.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ nombre: nombre, usuario: usuario, password: password, rol: rol })
+  })
+  .then(function(res) { return res.text(); })
+  .then(function(text) {
+    var data = null;
+    try {
+      var match = text.match(/\{[\s\S]*\}/);
+      data = match ? JSON.parse(match[0]) : null;
+    } catch(e) {}
+
+    if (data && data.ok) {
+      sessionStorage.setItem('erp_usuario', JSON.stringify({
+        id: data.id, nombre: nombre, usuario: usuario, rol: rol
+      }));
+      window.location.href = 'index.html';
+    } else {
+      mostrarError(data ? data.mensaje : 'No se pudo crear la cuenta.');
+      setBtnLoading('btn-reg', false, '<i class="bi bi-person-check me-2"></i> Crear Cuenta');
+    }
+  })
+  .catch(function(err) {
+    mostrarError('Error de conexión.');
+    setBtnLoading('btn-reg', false, '<i class="bi bi-person-check me-2"></i> Crear Cuenta');
+    console.error(err);
+  });
 }
+
+// Enter en contraseña dispara login
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('inp-pass').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') iniciarSesion();
+  });
+  document.getElementById('reg-pass').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') registrar();
+  });
+});
 </script>
 
 </body>

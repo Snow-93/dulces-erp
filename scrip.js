@@ -90,6 +90,8 @@ function showPage(id, btn) {
     mayor          : cargarLibroMayor,
     bsaldos        : cargarBalanceSaldos,
     bajustado      : cargarBalanceAjustado,
+    resultados     : cargarEstadoResultados,
+    balance        : cargarBalanceGeneral,
     nomina         : cargarNomina,
     productos      : cargarProductos,
     usuarios       : cargarUsuarios,
@@ -1400,10 +1402,18 @@ async function cargarNuevaPartida() {
   const lista = document.getElementById('np-cuentas-lista');
   if (lista && _npCuentas.length) {
     lista.innerHTML = _npCuentas.map(c => `
-      <tr style="cursor:default">
+      <tr>
         <td class="amount" style="font-size:11px">${c.codigo}</td>
         <td>${escHtml(c.nombre_cuenta)}</td>
         <td><span class="${tipoTag(c.tipo)}" style="font-size:10px">${c.tipo}</span></td>
+        <td class="text-center">
+          <button class="btn btn-sm btn-outline-danger px-1 py-0"
+            style="font-size:10px;line-height:1.4"
+            onclick="eliminarCuenta(${c.id_cuenta},'${escHtml(c.nombre_cuenta)}')"
+            title="Eliminar cuenta">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
       </tr>`).join('');
   }
 
@@ -1422,6 +1432,28 @@ async function cargarNuevaPartida() {
   }
 
   npCargarUltimas();
+}
+
+async function eliminarCuenta(id, nombre) {
+  const confirm = await Swal.fire({
+    title: '¿Eliminar cuenta?',
+    html: `<b>${nombre}</b><br><small class="text-muted">Solo se puede eliminar si no tiene movimientos registrados.</small>`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Eliminar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#c0392b',
+  });
+  if (!confirm.isConfirmed) return;
+
+  const res = await apiDelete('cuentas.php', id);
+  if (res?.ok) {
+    Swal.fire({ icon:'success', title:'Cuenta eliminada', timer:1400, showConfirmButton:false });
+    _npCuentas = [];
+    cargarNuevaPartida();
+  } else {
+    Swal.fire({ icon:'error', title:'No se pudo eliminar', text: res?.mensaje || 'La cuenta tiene movimientos.' });
+  }
 }
 
 // ── Modal nueva cuenta contable ──────────────────────────
@@ -1952,6 +1984,186 @@ async function eliminarUsuario(id, nombre) {
     Swal.fire({ icon:'success', title:'Usuario eliminado', timer:1400, showConfirmButton:false });
     cargarUsuarios();
   }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ESTADO DE RESULTADOS — NIC 1 Dinámico
+// ═══════════════════════════════════════════════════════════
+async function cargarEstadoResultados() {
+  document.querySelectorAll('.periodo-label').forEach(el => el.textContent = getPeriodoLabel());
+  const data = await apiGet(`estados_financieros.php?tipo=resultados&${getPeriodoStr()}`);
+  if (!data) return;
+
+  const el = document.getElementById('er-contenido');
+  if (!el) return;
+
+  const fila = (label, monto, clase = '', indent = false) => `
+    <div class="ef-row ${indent ? 'indent' : ''}">
+      <span>${label}</span>
+      <span class="ef-amount ${clase}">${monto < 0 ? '(' : ''}${q(Math.abs(monto))}${monto < 0 ? ')' : ''}</span>
+    </div>`;
+
+  const seccion = (label) => `<div class="ef-row section-header">${label}</div>`;
+  const subtotal = (label, monto, clase = '') => `
+    <div class="ef-row subtotal">
+      <span>${label}</span>
+      <span class="ef-amount ${clase}">${monto < 0 ? '(' : ''}${q(Math.abs(monto))}${monto < 0 ? ')' : ''}</span>
+    </div>`;
+
+  let html = '';
+
+  // ── Ingresos ──
+  html += seccion('INGRESOS DE ACTIVIDADES ORDINARIAS (NIC 18 / NIIF 15)');
+  data.ingresos.forEach(c => { html += fila(c.nombre_cuenta, c.saldo, 'amount-pos', true); });
+  html += subtotal('Total Ingresos', data.total_ingresos, 'amount-pos');
+
+  // ── Costo ──
+  html += seccion('COSTO DE VENTAS (NIC 2)');
+  html += fila('Costo de Mercadería Vendida', -data.costo_ventas, 'amount-neg', true);
+  html += subtotal(`Utilidad Bruta (Margen ${data.margen_bruto}%)`,
+    data.utilidad_bruta, data.utilidad_bruta >= 0 ? 'amount-pos' : 'amount-neg');
+
+  // ── Gastos operativos ──
+  html += seccion('GASTOS DE OPERACIÓN (NIC 19 / NIC 16)');
+  data.gastos_oper.forEach(c => { html += fila(c.nombre_cuenta, -Math.abs(c.saldo), 'amount-neg', true); });
+
+  if (data.depreciaciones.length) {
+    html += `<div class="ef-row indent" style="color:var(--text-muted);font-size:12px;font-style:italic">
+      — Depreciaciones y Amortizaciones (NIC 16) —</div>`;
+    data.depreciaciones.forEach(c => { html += fila(c.nombre_cuenta, -Math.abs(c.saldo), 'amount-neg', true); });
+  }
+
+  html += subtotal('Total Gastos de Operación', -data.total_gastos_oper - data.total_dep, 'amount-neg');
+  html += subtotal(`Resultado de Operación (Margen ${data.margen_oper}%)`,
+    data.utilidad_oper, data.utilidad_oper >= 0 ? 'amount-pos' : 'amount-neg');
+
+  // ── Impuestos ──
+  if (data.iva > 0) {
+    html += seccion('IMPUESTOS (NIC 12)');
+    html += fila('IVA — Pequeño Contribuyente 5% (Decreto 27-92)', -data.iva, 'amount-neg', true);
+  }
+
+  // ── Resultado final ──
+  const esGanancia = data.utilidad_neta >= 0;
+  html += `<div class="ef-row total-final">
+    <span>${esGanancia ? '✅ GANANCIA NETA DEL PERÍODO' : '⚠️ PÉRDIDA NETA DEL PERÍODO'}</span>
+    <span>${data.utilidad_neta < 0 ? '(' : ''}${q(Math.abs(data.utilidad_neta))}${data.utilidad_neta < 0 ? ')' : ''}</span>
+  </div>`;
+
+  if (!esGanancia) {
+    html += `<div class="alert alert-warning d-flex gap-2 m-3" style="font-size:12.5px">
+      <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+      <div>Pérdida normal en etapa inicial. Punto de equilibrio estimado: 
+      <strong>${q(data.total_gastos_oper + data.total_dep + data.costo_ventas + data.iva)}</strong> en ventas mensuales.</div>
+    </div>`;
+  }
+
+  el.innerHTML = html;
+
+  // Ratios
+  const ratiosEl = document.getElementById('er-ratios-body');
+  if (ratiosEl) {
+    ratiosEl.innerHTML = `
+      <table class="table table-sm mb-0" style="font-size:13px">
+        <tbody>
+          <tr><td class="text-muted">Margen Bruto (NIC 1)</td>
+              <td class="text-end fw-bold ${data.margen_bruto>=0?'amount-pos':'amount-neg'}">${data.margen_bruto}%</td></tr>
+          <tr><td class="text-muted">Margen Operativo</td>
+              <td class="text-end fw-bold ${data.margen_oper>=0?'amount-pos':'amount-neg'}">${data.margen_oper}%</td></tr>
+          <tr><td class="text-muted">Margen Neto</td>
+              <td class="text-end fw-bold ${data.margen_neto>=0?'amount-pos':'amount-neg'}">${data.margen_neto}%</td></tr>
+          <tr><td class="text-muted">Total Ingresos</td>
+              <td class="text-end amount-pos">${q(data.total_ingresos)}</td></tr>
+          <tr><td class="text-muted">Total Gastos</td>
+              <td class="text-end amount-neg">${q(data.total_gastos_oper + data.total_dep + data.costo_ventas)}</td></tr>
+          <tr><td class="text-muted">Resultado</td>
+              <td class="text-end fw-bold ${data.utilidad_neta>=0?'amount-pos':'amount-neg'}">${q(data.utilidad_neta)}</td></tr>
+        </tbody>
+      </table>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  BALANCE GENERAL — NIC 1 Corriente / No Corriente
+// ═══════════════════════════════════════════════════════════
+async function cargarBalanceGeneral() {
+  document.querySelectorAll('.periodo-label').forEach(el => el.textContent = getPeriodoLabel());
+  const data = await apiGet(`estados_financieros.php?tipo=balance&${getPeriodoStr()}`);
+  if (!data) return;
+
+  const elA = document.getElementById('bg-activos');
+  const elP = document.getElementById('bg-pasivo');
+  if (!elA || !elP) return;
+
+  const fila = (label, monto, clase = '', indent = false, negativo = false) => `
+    <div class="ef-row ${indent ? 'indent' : ''}">
+      <span>${label}</span>
+      <span class="ef-amount ${clase}">${negativo||monto<0?'(':''}${q(Math.abs(monto))}${negativo||monto<0?')':''}</span>
+    </div>`;
+  const seccion = (label) => `<div class="ef-row section-header">${label}</div>`;
+  const subtotal = (label, monto, clase = '') => `
+    <div class="ef-row subtotal"><span>${label}</span>
+      <span class="ef-amount ${clase}">${q(Math.abs(monto))}</span>
+    </div>`;
+
+  // ── ACTIVOS ──
+  let htmlA = '';
+  htmlA += seccion('ACTIVO CORRIENTE (NIC 1, párr. 66-68)');
+  data.activos_corrientes.forEach(c => {
+    htmlA += fila(c.nombre, c.saldo, c.saldo >= 0 ? 'amount-pos' : 'amount-neg', true);
+  });
+  htmlA += subtotal('Total Activo Corriente', data.total_ac, 'amount-pos');
+
+  htmlA += seccion('ACTIVO NO CORRIENTE — Propiedad, Planta y Equipo (NIC 16)');
+  data.activos_no_corrientes.forEach(c => {
+    htmlA += fila(c.nombre, c.saldo, 'amount-pos', true);
+  });
+  data.dep_acumuladas.forEach(c => {
+    htmlA += `<div class="ef-row indent" style="color:var(--danger);font-size:12px">
+      <span>(−) ${c.nombre}</span>
+      <span>(${q(Math.abs(c.saldo))})</span>
+    </div>`;
+  });
+  htmlA += subtotal('Total Activo No Corriente Neto', data.total_anc, 'amount-pos');
+  htmlA += `<div class="ef-row total-final"><span>TOTAL ACTIVO</span><span>${q(data.total_activo)}</span></div>`;
+  elA.innerHTML = htmlA;
+
+  // ── PASIVO Y PATRIMONIO ──
+  let htmlP = '';
+  htmlP += seccion('PASIVO CORRIENTE (NIC 1, párr. 69-76)');
+  data.pasivos_corrientes.forEach(c => {
+    htmlP += fila(c.nombre, c.saldo, 'amount-neg', true);
+  });
+  htmlP += subtotal('Total Pasivo Corriente', data.total_pc, 'amount-neg');
+
+  htmlP += seccion('PATRIMONIO (NIC 1, párr. 54)');
+  data.capital_cuentas.forEach(c => {
+    htmlP += fila(c.nombre, c.saldo, 'amount-pos', true);
+  });
+  const esGanancia = data.utilidad_neta >= 0;
+  htmlP += `<div class="ef-row indent">
+    <span>${esGanancia ? 'Ganancia' : 'Pérdida'} del Período</span>
+    <span class="ef-amount ${esGanancia ? 'amount-pos' : 'amount-neg'}">
+      ${data.utilidad_neta < 0 ? '(' : ''}${q(Math.abs(data.utilidad_neta))}${data.utilidad_neta < 0 ? ')' : ''}
+    </span>
+  </div>`;
+  htmlP += subtotal('Total Patrimonio', data.total_patrimonio,
+    data.total_patrimonio >= 0 ? 'amount-pos' : 'amount-neg');
+
+  const cuadra = data.cuadra;
+  htmlP += `<div class="ef-row total-final" style="${cuadra ? '' : 'background:var(--danger)'}">
+    <span>TOTAL PASIVO + PATRIMONIO ${cuadra ? '✅' : '⚠️'}</span>
+    <span>${q(data.total_pasivo_patrimonio)}</span>
+  </div>`;
+
+  if (!cuadra) {
+    htmlP += `<div class="alert alert-danger m-3" style="font-size:12.5px">
+      <i class="bi bi-exclamation-triangle-fill me-1"></i>
+      El balance no cuadra. Revisa que todas las partidas estén correctamente registradas.
+    </div>`;
+  }
+
+  elP.innerHTML = htmlP;
 }
 
 // ─────────────────────────────────────────────────────────

@@ -1,39 +1,40 @@
 <?php
-// ============================================================
-//  api/login.php — Autenticación de usuarios
-// ============================================================
+ob_start(); // Captura cualquier output extra antes del JSON
+
 require_once '../config.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    ob_end_clean();
     http_response_code(405);
     echo json_encode(['error' => true, 'mensaje' => 'Método no permitido']);
     exit;
 }
 
 $body    = json_decode(file_get_contents('php://input'), true);
-$usuario = $body['usuario'] ?? '';
-$password= $body['password'] ?? '';
-$rol     = $body['rol']     ?? '';
+$usuario = isset($body['usuario'])  ? trim($body['usuario']) : '';
+$password= isset($body['password']) ? $body['password']      : '';
+$rol     = isset($body['rol'])      ? trim($body['rol'])      : '';
 
 if (!$usuario || !$password || !$rol) {
+    ob_end_clean();
     echo json_encode(['ok' => false, 'mensaje' => 'Completa todos los campos.']);
     exit;
 }
 
 $db = getDB();
 
-$usuario  = $db->real_escape_string($usuario);
-$rol      = $db->real_escape_string($rol);
+$usuarioEsc = $db->real_escape_string($usuario);
+$rolEsc     = $db->real_escape_string($rol);
 
-// Buscar usuario por nombre de usuario y rol
 $res = $db->query("
     SELECT id_usuario, nombre, usuario, contraseña, rol
     FROM usuarios
-    WHERE usuario = '$usuario' AND rol = '$rol'
+    WHERE usuario = '$usuarioEsc' AND rol = '$rolEsc'
     LIMIT 1
 ");
 
 if (!$res || $res->num_rows === 0) {
+    ob_end_clean();
     echo json_encode(['ok' => false, 'mensaje' => 'Usuario, contraseña o rol incorrecto.']);
     $db->close();
     exit;
@@ -41,27 +42,28 @@ if (!$res || $res->num_rows === 0) {
 
 $user = $res->fetch_assoc();
 
-// Verificar contraseña (soporta texto plano y hash)
+// Verificar contraseña — acepta texto plano y hash
 $passOk = false;
-if (password_verify($password, $user['contraseña'])) {
-    $passOk = true; // contraseña hasheada
-} elseif ($password === $user['contraseña']) {
-    $passOk = true; // contraseña en texto plano (para desarrollo)
-
-    // Aprovechar para hashear la contraseña si estaba en texto plano
-    $hash = password_hash($password, PASSWORD_DEFAULT);
+if ($password === $user['contraseña']) {
+    $passOk = true;
+    // Hashear para próximos logins
+    $hash = $db->real_escape_string(password_hash($password, PASSWORD_DEFAULT));
     $db->query("UPDATE usuarios SET contraseña='$hash' WHERE id_usuario={$user['id_usuario']}");
+} elseif (password_verify($password, $user['contraseña'])) {
+    $passOk = true;
 }
 
 if (!$passOk) {
+    ob_end_clean();
     echo json_encode(['ok' => false, 'mensaje' => 'Usuario, contraseña o rol incorrecto.']);
     $db->close();
     exit;
 }
 
+ob_end_clean();
 echo json_encode([
     'ok'      => true,
-    'id'      => $user['id_usuario'],
+    'id'      => (int)$user['id_usuario'],
     'nombre'  => $user['nombre'],
     'usuario' => $user['usuario'],
     'rol'     => $user['rol'],
