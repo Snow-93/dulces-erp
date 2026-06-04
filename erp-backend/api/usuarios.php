@@ -37,7 +37,7 @@ if ($method === 'POST') {
     $hash   = password_hash($b['password'], PASSWORD_DEFAULT);
     $hash   = $db->real_escape_string($hash);
 
-    $db->query("INSERT INTO usuarios (nombre, usuario, contraseña, rol) VALUES ('$nombre','$usu','$hash','$rol')");
+    $db->query("INSERT INTO usuarios (nombre, usuario, contrasena, rol) VALUES ('$nombre','$usu','$hash','$rol')");
     echo json_encode(['ok' => true, 'id' => $db->insert_id]);
     $db->close();
     exit;
