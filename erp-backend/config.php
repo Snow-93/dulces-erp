@@ -1,9 +1,9 @@
 <?php
-define('DB_HOST', 'mysql.ferrocarril.interno');
+define('DB_HOST', 'acela.proxy.rlwy.net');
 define('DB_NAME', 'railway');
 define('DB_USER', 'root');
 define('DB_PASS', 'gkBvmZrlvPnWVTuGCUXSOoDUeUMLUrAL');
-define('DB_PORT', 3306);
+define('DB_PORT', 40543);
 
 function getDB() {
     $db = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME, DB_PORT);
