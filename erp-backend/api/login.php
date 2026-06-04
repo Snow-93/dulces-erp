@@ -29,7 +29,7 @@ $usuarioEsc = $db->real_escape_string($usuario);
 $rolEsc     = $db->real_escape_string($rol);
 
 $res = $db->query("
-    SELECT id_usuario, nombre, usuario, contraseña, rol
+    SELECT id_usuario, nombre, usuario, contrasena, rol
     FROM usuarios
     WHERE usuario = '$usuarioEsc' AND rol = '$rolEsc'
     LIMIT 1
@@ -46,12 +46,12 @@ $user = $res->fetch_assoc();
 
 // Verificar contraseña — acepta texto plano y hash
 $passOk = false;
-if ($password === $user['contraseña']) {
+if ($password === $user['contrasena']) {
     $passOk = true;
     // Hashear para próximos logins
     $hash = $db->real_escape_string(password_hash($password, PASSWORD_DEFAULT));
     $db->query("UPDATE usuarios SET contraseña='$hash' WHERE id_usuario={$user['id_usuario']}");
-} elseif (password_verify($password, $user['contraseña'])) {
+} elseif (password_verify($password, $user['contrasena'])) {
     $passOk = true;
 }
 
