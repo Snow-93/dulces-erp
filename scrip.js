@@ -9,8 +9,7 @@
 // CONFIGURACIÓN API
 // Cambia esta URL si tu carpeta en htdocs se llama diferente
 // ─────────────────────────────────────────────────────────
-const API = 'http://localhost/dulces-erp/erp-backend/api';
-// ─────────────────────────────────────────────────────────
+const API = 'https://dulces-erp-production.up.railway.app/erp-backend/api';// ─────────────────────────────────────────────────────────
 // PERÍODO ACTIVO — controlado por el selector del topbar
 // ─────────────────────────────────────────────────────────
 const MESES = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio',
