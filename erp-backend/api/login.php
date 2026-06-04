@@ -50,7 +50,7 @@ if ($password === $user['contrasena']) {
     $passOk = true;
     // Hashear para próximos logins
     $hash = $db->real_escape_string(password_hash($password, PASSWORD_DEFAULT));
-    $db->query("UPDATE usuarios SET contraseña='$hash' WHERE id_usuario={$user['id_usuario']}");
+$db->query("UPDATE usuarios SET contrasena='$hash' WHERE id_usuario={$user['id_usuario']}");
 } elseif (password_verify($password, $user['contrasena'])) {
     $passOk = true;
 }
